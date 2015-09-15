@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romanblack_html_cannot_init">Нельзя создать WebView.</string>
+
+    <string name="romanblack_html_send_email">Отправляем почту...</string>
+    <string name="romanblack_html_loading">Загрузка...</string>
+    <string name="romanblack_html_web">Модуль WEB</string>
+
+    <string name="romanblack_html_alert_no_internet">Мобильный интернет отключен. Включите интернет, либо используйте
+        WiFi
+    </string>
+    <string name="romanblack_html_no_video_player">Не установлено подходящего приложения чтобы проиграть это видео
+    </string>
+</resources>
+

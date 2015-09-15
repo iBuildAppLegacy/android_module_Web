@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romanblack_html_cannot_init">Cannot initialize Web plugin.</string>
+
+    <string name="romanblack_html_send_email">Send mail...</string>
+    <string name="romanblack_html_loading">Loading...</string>
+    <string name="romanblack_html_web">Web</string>
+
+    <string name="romanblack_html_alert_no_internet">Cellular Data is Turned off. Turn on cellular data or use Wi-Fi to
+        access data
+    </string>
+    <string name="romanblack_html_no_video_player">No app installed to play this video</string>
+
+</resources>
