@@ -1,3 +1,4 @@
+Use our code to save yourself time on cross-platform, cross-device and cross OS version development and testing
 # android module Web
 Web widget is designed to display web-content, located under provided web-link. User provides the link while creating the app on website. If a user provids HTML-content manually then this content should be displayed in the app.
 
