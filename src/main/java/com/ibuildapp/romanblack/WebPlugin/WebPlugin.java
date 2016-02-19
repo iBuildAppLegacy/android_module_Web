@@ -22,7 +22,6 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.MailTo;
 import android.net.NetworkInfo;
@@ -36,17 +35,19 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.DownloadListener;
 import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -56,6 +57,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.appbuilder.sdk.android.AppBuilderModuleMain;
+import com.appbuilder.sdk.android.Statics;
 import com.appbuilder.sdk.android.Widget;
 
 import org.apache.http.HttpEntity;
@@ -203,15 +205,12 @@ public class WebPlugin extends AppBuilderModuleMain {
             }
 
             // topbar initialization
-            boolean showSideBar = ((Boolean) getIntent().getExtras().getSerializable("showSideBar")).booleanValue();
-            if (!showSideBar) {
-                setTopBarLeftButtonText(getString(R.string.common_home_upper), true, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        onBackPressed();
-                    }
-                });
-            }
+            setTopBarLeftButtonText(getString(R.string.common_home_upper), true, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onBackPressed();
+                }
+            });
 
             if (isOnline) {
                 webView.getSettings().setJavaScriptEnabled(true);
@@ -283,6 +282,7 @@ public class WebPlugin extends AppBuilderModuleMain {
                 FrameLayout.LayoutParams LayoutParameters = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT);
 
+
                 @Override
                 public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback) {
                     if (customView != null) {
@@ -349,6 +349,11 @@ public class WebPlugin extends AppBuilderModuleMain {
                     i.setType("image/*");
                     startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
                     return true;
+                }
+
+                @Override
+                public void onReceivedTouchIconUrl(WebView view, String url, boolean precomposed) {
+                    super.onReceivedTouchIconUrl(view, url, precomposed);
                 }
             });
 
@@ -433,12 +438,17 @@ public class WebPlugin extends AppBuilderModuleMain {
 
                 @Override
                 public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                    handler.proceed();
+                    handler.cancel();
                 }
 
                 @Override
                 public void onFormResubmission(WebView view, Message dontResend, Message resend) {
                     super.onFormResubmission(view, dontResend, resend);
+                }
+
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                    return super.shouldInterceptRequest(view, request);
                 }
 
                 @Override
@@ -520,6 +530,19 @@ public class WebPlugin extends AppBuilderModuleMain {
 
                             return true;
                         } else {
+                            if (url.contains("ibuildapp.com-1915109")){
+                                String param = Uri.parse(url).getQueryParameter("widget");
+                                finish();
+                                if (param!=null && param.equals("1001"))
+                                    com.appbuilder.sdk.android.Statics.launchMain();
+                                else if (param!=null && !"".equals(param)){
+                                    View.OnClickListener widget = Statics.linkWidgets.get(Integer.valueOf(param));
+                                    if (widget!=null)
+                                        widget.onClick(view);
+                                }
+                                return false;
+                            }
+
                             currentUrl = url;
                             setSession(currentUrl);
                             if (!isOnline) {
@@ -577,7 +600,6 @@ public class WebPlugin extends AppBuilderModuleMain {
                     url = parser.getUrl();
                     html = parser.getHtml();
 
-
                     if (url.length() > 0 && !isOnline) {
                         handler.sendEmptyMessage(NEED_INTERNET_CONNECTION);
                     } else {
@@ -615,7 +637,9 @@ public class WebPlugin extends AppBuilderModuleMain {
         if (customView != null) {
             closeFullScreenVideo();
         } else {
-            super.onBackPressed();
+
+            //super.onBackPressed();
+            finish();
         }
     }
 
@@ -673,6 +697,7 @@ public class WebPlugin extends AppBuilderModuleMain {
                 }
                 if (url.length() > 0)
                     html = "<html><body><a href=\"" + url + "\" id=\"link\" /></body></html>";
+
                 Document doc = Jsoup.parse(html);
                 Element iframe = doc.select("iframe").first();
 
@@ -725,13 +750,13 @@ public class WebPlugin extends AppBuilderModuleMain {
                     }
 
                     hideProgress = true;
-//                    if (Build.VERSION.SDK_INT> 20) {
-//                        int height = getResources().getDisplayMetrics().heightPixels;
-//
-//                        html =  "<iframe width=\""+420+"\" height=\""+height+"\"  frameBorder=\"0\" src="+ url + "></iframe>";
-//                        webView.loadData(html, "text/html", "utf-8");
-//                    }
-//                    else
+
+                    if (Build.VERSION.SDK_INT>= 20 && html.contains("ibuildapp") && html.contains("powr")) {
+                        int height = getResources().getDisplayMetrics().heightPixels;
+                        html =  "<iframe width=\""+420+"\" height=\""+height+"\"  frameBorder=\"0\" src="+ url + "></iframe>";
+                        webView.loadData(html, "text/html", "utf-8");
+                    }
+                    else
                     webView.loadDataWithBaseURL("http://", html, "text/html", "utf-8", "");
                 }
             } else {
