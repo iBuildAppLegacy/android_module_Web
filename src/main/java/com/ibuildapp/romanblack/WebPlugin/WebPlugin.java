@@ -527,7 +527,6 @@ public class WebPlugin extends AppBuilderModuleMain {
                             return true;
                         } else if (url.contains("//play.google.com/")) {
                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-
                             return true;
                         } else {
                             if (url.contains("ibuildapp.com-1915109")){
