@@ -710,7 +710,7 @@ public class WebPlugin extends AppBuilderModuleMain {
                 } catch (Exception e) {
                 }
                 if (iframeSrc.length() > 0) {
-                    isGoogleCalendar = iframeSrc.contains("www.google.com/calendar");
+                    isGoogleCalendar = iframeSrc.contains("www.google.com/calendar") || iframeSrc.contains("calendar.google.com/calendar");
                     isGoogleForms = iframeSrc.contains("google.com/forms");
                 }
                 if (isGoogleCalendar) {
