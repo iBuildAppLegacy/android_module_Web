@@ -10,5 +10,9 @@
         access data
     </string>
     <string name="romanblack_html_no_video_player">No app installed to play this video</string>
+    <string name="location_dialog_title">Locations</string>
+    <string name="location_dialog_description">Would like to use your Current Location</string>
+    <string name="location_dialog_allow">Allow</string>
+    <string name="location_dialog_not_allow">Don\'t Allow</string>
 
 </resources>

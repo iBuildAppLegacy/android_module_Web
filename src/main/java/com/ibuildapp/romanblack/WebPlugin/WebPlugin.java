@@ -10,6 +10,7 @@
  ****************************************************************************/
 package com.ibuildapp.romanblack.WebPlugin;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -42,6 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.DownloadListener;
+import android.webkit.GeolocationPermissions;
 import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
@@ -282,6 +284,29 @@ public class WebPlugin extends AppBuilderModuleMain {
                 FrameLayout.LayoutParams LayoutParameters = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT);
 
+
+                @Override
+                public void onGeolocationPermissionsShowPrompt(final String origin, final GeolocationPermissions.Callback callback) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(WebPlugin.this);
+                    builder.setTitle(R.string.location_dialog_title);
+                    builder.setMessage(R.string.location_dialog_description);
+                    builder.setCancelable(true);
+
+                    builder.setPositiveButton(R.string.location_dialog_allow, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            callback.invoke(origin, true, false);
+                        }
+                    });
+
+                    builder.setNegativeButton(R.string.location_dialog_not_allow, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            callback.invoke(origin, false, false);
+                        }
+                    });
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
 
                 @Override
                 public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback) {

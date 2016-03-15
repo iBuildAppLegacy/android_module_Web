@@ -11,5 +11,9 @@
     </string>
     <string name="romanblack_html_no_video_player">Не установлено подходящего приложения чтобы проиграть это видео
     </string>
+    <string name="location_dialog_title">Местоположение</string>
+    <string name="location_dialog_description">Разрешить этому приложению определять ваше местоположение? </string>
+    <string name="location_dialog_allow">Разрешить</string>
+    <string name="location_dialog_not_allow">Запретить</string>
 </resources>
 
