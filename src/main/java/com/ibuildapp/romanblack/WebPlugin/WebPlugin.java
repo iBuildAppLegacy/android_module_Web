@@ -59,6 +59,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.appbuilder.sdk.android.AppBuilderModuleMain;
+import com.appbuilder.sdk.android.StartUpActivity;
 import com.appbuilder.sdk.android.Statics;
 import com.appbuilder.sdk.android.Widget;
 
@@ -82,6 +83,7 @@ import java.util.List;
  * Main module class. Module entry point.
  * Represents HTML, Web, Google Calendar and Facebook widgets.
  */
+@StartUpActivity(moduleName = "Web")
 public class WebPlugin extends AppBuilderModuleMain {
 
     final private int SHOW_HTML = 0;
