@@ -4,6 +4,8 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+//    useLibrary 'org.apache.http.legacy'
+
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -20,7 +22,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':api')
+    compile "com.ibuildapp:sdk:$iBuildAppSdkVersion"
 
     compile "org.jsoup:jsoup:$JsoupVersion"
+    compile "com.ibuildapp:sdk:$iBuildAppSdkVersion"
 }
