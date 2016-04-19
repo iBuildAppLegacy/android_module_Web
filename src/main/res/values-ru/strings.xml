@@ -15,5 +15,8 @@
     <string name="location_dialog_description">Разрешить этому приложению определять ваше местоположение? </string>
     <string name="location_dialog_allow">Разрешить</string>
     <string name="location_dialog_not_allow">Запретить</string>
+    <string name="notification_error_ssl_cert_invalid">У Вас возникла SSl ошибка. Желаете ли Вы продолжить?</string>
+    <string name="wp_cancel">Отмена</string>
+    <string name="wp_continue">Продолжить</string>
 </resources>
 

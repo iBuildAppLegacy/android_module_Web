@@ -464,8 +464,23 @@ public class WebPlugin extends AppBuilderModuleMain {
                 }
 
                 @Override
-                public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-                    handler.cancel();
+                public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(WebPlugin.this);
+                    builder.setMessage(R.string.notification_error_ssl_cert_invalid);
+                    builder.setPositiveButton(WebPlugin.this.getResources().getString(R.string.wp_continue), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.proceed();
+                        }
+                    });
+                    builder.setNegativeButton(WebPlugin.this.getResources().getString(R.string.wp_cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.cancel();
+                        }
+                    });
+                    final AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
 
                 @Override
