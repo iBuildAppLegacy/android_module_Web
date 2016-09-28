@@ -731,74 +731,72 @@ public class WebPlugin extends AppBuilderModuleMain {
         try {
 
             if (isOnline) {
-
-
-                if (currentUrl.length() > 0 && !currentUrl.equals("about:blank")) {
+                if (currentUrl.length() > 0 && !currentUrl.equals("about:blank"))
                     url = currentUrl;
-                }
-                if (url.length() > 0)
-                    html = "<html><body><a href=\"" + url + "\" id=\"link\" /></body></html>";
 
-                Document doc = Jsoup.parse(html);
-                Element iframe = doc.select("iframe").first();
+                if (url.length() > 0){
+                    webView.loadUrl(url);
+                }else {
+                    Document doc = Jsoup.parse(html);
+                    Element iframe = doc.select("iframe").first();
 
-                boolean isGoogleCalendar = false;
-                boolean isGoogleForms = false;
-                String iframeSrc = "";
-                try {
-                    if (iframe != null) {
-                        iframeSrc = iframe.attr("src");
+                    boolean isGoogleCalendar = false;
+                    boolean isGoogleForms = false;
+                    String iframeSrc = "";
+                    try {
+                        if (iframe != null) {
+                            iframeSrc = iframe.attr("src");
+                        }
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) {
-                }
-                if (iframeSrc.length() > 0) {
-                    isGoogleCalendar = iframeSrc.contains("www.google.com/calendar") || iframeSrc.contains("calendar.google.com/calendar");
-                    isGoogleForms = iframeSrc.contains("google.com/forms");
-                }
-                if (isGoogleCalendar) {
-                    webView.loadUrl(iframeSrc);
-                } else if (isGoogleForms) {
-                    webView.getSettings().setBuiltInZoomControls(false);
+                    if (iframeSrc.length() > 0) {
+                        isGoogleCalendar = iframeSrc.contains("www.google.com/calendar") || iframeSrc.contains("calendar.google.com/calendar");
+                        isGoogleForms = iframeSrc.contains("google.com/forms");
+                    }
+                    if (isGoogleCalendar) {
+                        webView.loadUrl(iframeSrc);
+                    } else if (isGoogleForms) {
+                        webView.getSettings().setBuiltInZoomControls(false);
 
-                    DisplayMetrics metrix = getResources().getDisplayMetrics();
-                    int width = metrix.widthPixels;
-                    int height = metrix.heightPixels;
-                    float density = metrix.density;
+                        DisplayMetrics metrix = getResources().getDisplayMetrics();
+                        int width = metrix.widthPixels;
+                        int height = metrix.heightPixels;
+                        float density = metrix.density;
 
-                    iframe.attr("width", (int) (width / density) + "");
-                    iframe.attr("height", (int) (height / density - (75 /*+ (hasAdView() ? 50 : 0)*/)) + "");
+                        iframe.attr("width", (int) (width / density) + "");
+                        iframe.attr("height", (int) (height / density - (75 /*+ (hasAdView() ? 50 : 0)*/)) + "");
 
-                    iframe.attr("style", "margin: 0; padding: 0");
+                        iframe.attr("style", "margin: 0; padding: 0");
 
-                    Element body = doc.select("body").first();
-                    body.attr("style", "margin: 0; padding: 0");
+                        Element body = doc.select("body").first();
+                        body.attr("style", "margin: 0; padding: 0");
 
-                    html = doc.outerHtml();
+                        html = doc.outerHtml();
 
-                    webView.loadDataWithBaseURL("http://", html, "text/html", "utf-8", "");
-                } else {
-                    Elements forms = doc.select("form");
-                    Iterator<Element> iterator = forms.iterator();
-                    for (; iterator.hasNext(); ) {
-                        Element form = iterator.next();
-                        String action = form.attr("action");
+                        webView.loadDataWithBaseURL("http://", html, "text/html", "utf-8", "");
+                    } else {
+                        Elements forms = doc.select("form");
+                        Iterator<Element> iterator = forms.iterator();
+                        for (; iterator.hasNext(); ) {
+                            Element form = iterator.next();
+                            String action = form.attr("action");
 
-                        if (action.contains("paypal.com")) {
-                            form.append("<input type=\"hidden\" name=\"bn\" value=\"ibuildapp_SP\">");
+                            if (action.contains("paypal.com")) {
+                                form.append("<input type=\"hidden\" name=\"bn\" value=\"ibuildapp_SP\">");
+                            }
+
+                            html = doc.html();
                         }
 
-                        html = doc.html();
-                    }
+                        hideProgress = true;
 
-                    hideProgress = true;
-
-                    if (Build.VERSION.SDK_INT>= 20 && html.contains("ibuildapp") && html.contains("powr")) {
-                        int height = getResources().getDisplayMetrics().heightPixels;
-                        html =  "<iframe width=\""+420+"\" height=\""+height+"\"  frameBorder=\"0\" src="+ url + "></iframe>";
-                        webView.loadData(html, "text/html", "utf-8");
+                        if (Build.VERSION.SDK_INT >= 20 && html.contains("ibuildapp") && html.contains("powr")) {
+                            int height = getResources().getDisplayMetrics().heightPixels;
+                            html = "<iframe width=\"" + 420 + "\" height=\"" + height + "\"  frameBorder=\"0\" src=" + url + "></iframe>";
+                            webView.loadData(html, "text/html", "utf-8");
+                        } else
+                            webView.loadDataWithBaseURL("http://", html, "text/html", "utf-8", "");
                     }
-                    else
-                    webView.loadDataWithBaseURL("http://", html, "text/html", "utf-8", "");
                 }
             } else {
                 if (html.length() > 0) {
