@@ -232,34 +232,6 @@ public class WebPlugin extends AppBuilderModuleMain {
             webView.clearHistory();
             webView.invalidate();
 
-            if (Build.VERSION.SDK_INT >= 19){}
-               webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; U; Android 2.2.1; en-us; Nexus One Build/FRG83) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1");
-
-            webView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    v.invalidate();
-
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN: {
-                        }
-                        break;
-                        case MotionEvent.ACTION_UP: {
-                            if (!v.hasFocus()) {
-                                v.requestFocus();
-                            }
-                        }
-                        break;
-
-                        case MotionEvent.ACTION_MOVE: {
-                        }
-                        break;
-
-                    }
-                    return false;
-                }
-            });
-
             webView.setBackgroundColor(Color.WHITE);
             try {
                 if (widget.getBackgroundColor() != Color.TRANSPARENT) {
