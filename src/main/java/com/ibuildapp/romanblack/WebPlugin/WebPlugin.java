@@ -468,8 +468,10 @@ public class WebPlugin extends AppBuilderModuleMain {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     try {
-
-                        if (url.contains("youtube.com/watch")) {
+                        if (url.contains("tg:")) {
+                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)));
+                            return true;
+                        } else if (url.contains("youtube.com/watch")) {
                             if (Build.VERSION.SDK_INT < 11) {
                                 try {
                                     startActivity(new Intent(Intent.ACTION_VIEW,
