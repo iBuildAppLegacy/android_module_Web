@@ -19,6 +19,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -28,6 +29,7 @@ import android.net.MailTo;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,12 +40,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.DownloadListener;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JsResult;
 import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
@@ -56,6 +56,7 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appbuilder.sdk.android.AppBuilderModuleMain;
@@ -73,10 +74,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+
 
 
 /**
@@ -112,7 +119,10 @@ public class WebPlugin extends AppBuilderModuleMain {
     private boolean isMedia = false;
     private String url = "";
     private String html = "";
+    private String pluginData = "";
     private String currentUrl = "";
+    private String cachePath;
+    private TextView textbox;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message message) {
@@ -158,12 +168,24 @@ public class WebPlugin extends AppBuilderModuleMain {
     private ValueCallback<Uri> mUploadMessage;
     private ValueCallback<Uri[]> mUploadMessageV21;
     private boolean isV21 = false;
+    private String filename;
+    private String path;
+    private final String extension = ".js";
     @Override
     public void create() {
         try {
 
             setContentView(R.layout.romanblack_html_main);
+            Intent currentIntent = getIntent();
+            Bundle store = currentIntent.getExtras();
+            widget = (Widget) store.getSerializable("Widget");
+            cachePath = widget.getCachePath();  //getFilesDir().getAbsolutePath();
+            prepareDirectory();
+            File file = new File(cachePath + File.separator + "index.html");
+            path =  file.getAbsolutePath();
             root = (FrameLayout) findViewById(R.id.romanblack_root_layout);
+        /*    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://hackathon.ibuildapp.io/hackathon/examples/1/"));
+            startActivity(intent);*/
             webView = new ObservableWebView(this);
             webView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                     RelativeLayout.LayoutParams.MATCH_PARENT));
@@ -172,10 +194,6 @@ public class WebPlugin extends AppBuilderModuleMain {
 
             webView.setHorizontalScrollBarEnabled(false);
             setTitle("HTML");
-
-            Intent currentIntent = getIntent();
-            Bundle store = currentIntent.getExtras();
-            widget = (Widget) store.getSerializable("Widget");
             if (widget == null) {
                 handler.sendEmptyMessageDelayed(INITIALIZATION_FAILED, 100);
                 return;
@@ -218,6 +236,7 @@ public class WebPlugin extends AppBuilderModuleMain {
 
             if (isOnline) {
                 webView.getSettings().setJavaScriptEnabled(true);
+
             }
 
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -247,9 +266,9 @@ public class WebPlugin extends AppBuilderModuleMain {
                                             String contentDisposition,
                                             String mimetype,
                                             long contentLength) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
+          /*          Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(Uri.parse(url));
-                    startActivity(intent);
+                    startActivity( Intent.createChooser(intent, "Browser"));*/
                 }
             });
 
@@ -360,12 +379,17 @@ public class WebPlugin extends AppBuilderModuleMain {
                 @Override
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     super.onPageStarted(view, url, favicon);
+                 /*   prepareDirectory();
+                    File file = new File(cachePath + File.separator + "index.html");
+                    path =  file.getAbsolutePath();
+                    webView.loadUrl(url);*/
 
-                    if (state == states.EMPTY) {
+                  if (state == states.EMPTY) {
                         currentUrl = url;
                         setSession(currentUrl);
                         state = states.LOAD_START;
                         handler.sendEmptyMessage(SHOW_PROGRESS);
+
                     }
                 }
 
@@ -400,7 +424,7 @@ public class WebPlugin extends AppBuilderModuleMain {
                         } catch (Exception ex) {
                         }
                     } else {
-                        super.onLoadResource(view, url);
+                        super.onLoadResource(view,url);
                     }
                 }
 
@@ -420,7 +444,9 @@ public class WebPlugin extends AppBuilderModuleMain {
                                     "})()");
                             hideProgress = false;
                         }
+
                     } else {
+
                         state = states.LOAD_COMPLETE;
                         handler.sendEmptyMessage(HIDE_PROGRESS);
                         super.onPageFinished(view, url);
@@ -544,7 +570,17 @@ public class WebPlugin extends AppBuilderModuleMain {
                         } else if (url.contains("//play.google.com/")) {
                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                             return true;
-                        } else {
+                        } else if (url.contains("hackathon")) {
+                            try {
+                                Intent hackIntent = new Intent(Intent.ACTION_VIEW);
+                                hackIntent.setData(Uri.parse("file:///" + path ));
+                                startActivity(hackIntent);
+                                return true;
+                            } catch (Exception ex) {
+                                Log.e("", ex.getMessage());
+                                return false;
+                            }
+                        }  else {
                             if (url.contains("ibuildapp.com-1915109")){
                                 String param = Uri.parse(url).getQueryParameter("widget");
                                 finish();
@@ -609,6 +645,7 @@ public class WebPlugin extends AppBuilderModuleMain {
 
                     url = parser.getUrl();
                     html = parser.getHtml();
+                    pluginData = parser.getPluginData();
 
                     if (url.length() > 0 && !isOnline) {
                         handler.sendEmptyMessage(NEED_INTERNET_CONNECTION);
@@ -629,6 +666,67 @@ public class WebPlugin extends AppBuilderModuleMain {
             }.start();
 
         } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    public void copyAsserts(String path){
+        AssetManager assetManager = getAssets();
+        String folder = path;
+
+        String[] files = null;
+        try {
+            files = assetManager.list(folder);
+        } catch (IOException e) {
+//            Log.e("tag", "Failed to get asset file list.", e);
+        }
+        for(String filename : files) {
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                in = assetManager.open(folder + File.separator + filename);
+                File outFile = new File(cachePath, filename);
+                out = new FileOutputStream(outFile);
+                copyFile(in, out);
+                in.close();
+                in = null;
+                out.flush();
+                out.close();
+                out = null;
+            } catch(IOException e) {
+//                Log.e("tag", "Failed to copy asset file: " + filename, e);
+            }
+        }
+    }
+    private void prepareDirectory(){
+        copyAsserts("mainjs");
+        copyAsserts("js");
+        File cachePathFile = new File(cachePath );
+
+        if(!cachePathFile.exists()) cachePathFile.mkdirs();
+
+        String filePath = cachePath + File.separator + "main.js";
+
+        File contentFile = new File(filePath);
+
+        if(contentFile.exists()) contentFile.delete();
+
+        try {
+            if(contentFile.createNewFile()) {
+                FileOutputStream fos =  new FileOutputStream(contentFile);
+
+                String result = " var url = '" + filename+extension +"'";
+                fos.write(result.getBytes());
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
         }
     }
 
@@ -648,7 +746,7 @@ public class WebPlugin extends AppBuilderModuleMain {
             closeFullScreenVideo();
         } else {
 
-            //super.onBackPressed();
+         //   super.onBackPressed();
             finish();
         }
     }
@@ -703,8 +801,17 @@ public class WebPlugin extends AppBuilderModuleMain {
                 if (currentUrl.length() > 0 && !currentUrl.equals("about:blank"))
                     url = currentUrl;
 
-                if (url.length() > 0){
-                    webView.loadUrl(url);
+                if (url.length() >0){
+                    if (pluginData!=null) {
+                          if (!pluginData.equals("")) {
+                              new parseUrl().execute();
+                          } else {
+                              webView.loadUrl(url);
+                    }
+                        } else {
+                        webView.loadUrl(url);
+                    }
+
                 }else {
                     Document doc = Jsoup.parse(html);
                     Element iframe = doc.select("iframe").first();
@@ -776,6 +883,32 @@ public class WebPlugin extends AppBuilderModuleMain {
             handler.sendEmptyMessageDelayed(HIDE_PROGRESS, 10000);
 
         } catch (Exception ex) { // Error Logging
+            Log.e("DOC", ex.getMessage());
+        }
+    }
+   //Добавлено для работы с DApp
+    private class parseUrl extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String title ="";
+            Document doc;
+            try {
+                doc = Jsoup.connect(url).get();
+                Elements head = doc.select("head");
+                head.prepend(pluginData);
+                html =  doc.html();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return title;
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            webView.loadDataWithBaseURL(url, html, "text/html", "utf-8", "");
         }
     }
 
