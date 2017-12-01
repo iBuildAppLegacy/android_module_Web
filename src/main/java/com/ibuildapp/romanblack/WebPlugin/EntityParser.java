@@ -31,16 +31,6 @@ public class EntityParser {
     private String url = "";
     private String html = "";
 
-    public String getPluginData() {
-        return pluginData;
-    }
-
-    public void setPluginData(String pluginData) {
-        this.pluginData = pluginData;
-    }
-
-    private String pluginData = "";
-
     /**
      * Constructs new EntityParser instance
      *
@@ -78,7 +68,6 @@ public class EntityParser {
         RootElement root = new RootElement("data");
         android.sax.Element title = root.getChild("title");
         android.sax.Element content = root.getChild("content");
-        android.sax.Element plugins = root.getChild("plugins");
 
         root.setEndElementListener(new EndElementListener() {
             @Override
@@ -106,14 +95,6 @@ public class EntityParser {
             @Override
             public void end(String body) {
                 html = body;
-            }
-        });
-
-        plugins.setEndTextElementListener(new EndTextElementListener() {
-            @Override
-            public void end(String body) {
-                setPluginData(body);
-
             }
         });
 
