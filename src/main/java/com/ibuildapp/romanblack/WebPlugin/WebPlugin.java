@@ -524,7 +524,7 @@ public class WebPlugin extends AppBuilderModuleMain {
                             Intent intent = new Intent(Intent.ACTION_VIEW, address);
 
                             final PackageManager pm = getPackageManager();
-                            final List<ResolveInfo> matches = pm.queryIntentActivities(intent, 0);
+                            final List<ResolveInfo> matches = pm.queryIntentActivities(intent, 0);/**/
                             if (matches.size() > 0) {
                                 startActivity(intent);
                             } else {
@@ -646,9 +646,14 @@ public class WebPlugin extends AppBuilderModuleMain {
         if (customView != null) {
             closeFullScreenVideo();
         } else {
+            if (webView.canGoBack()) {
+                webView.goBack();
+            } else {
+                super.onBackPressed();
+            }
 
-            //super.onBackPressed();
-            finish();
+          //  super.onBackPressed();
+        //    finish();
         }
     }
 
