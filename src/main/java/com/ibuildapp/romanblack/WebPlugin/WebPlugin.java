@@ -181,6 +181,7 @@ public class WebPlugin extends AppBuilderModuleMain {
             }
             appName = widget.getAppName();
 
+            Log.e("WEB PLUGIN", widget.getPluginXmlData());
             if (widget.getPluginXmlData().length() == 0) {
                 if (widget.getPathToXmlFile().length() == 0) {
                     handler.sendEmptyMessageDelayed(INITIALIZATION_FAILED, 100);
@@ -858,6 +859,22 @@ public class WebPlugin extends AppBuilderModuleMain {
         return true;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (webView != null)
+            webView.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (webView != null)
+            webView.onResume();
+    }
+
     /**
      * This menu contains back, forward and refresh buttons.
      *
@@ -1003,5 +1020,4 @@ class ObservableWebView extends WebView {
 
         public void onScroll(int l, int t);
     }
-
 }

@@ -23,8 +23,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-  //  compile project (':master_api')
     compile "com.ibuildapp:sdk:$iBuildAppSdkVersion"
+//    compile project (':api')
   //  compile (name:'geth_android', ext:'aar')
     compile "org.jsoup:jsoup:$JsoupVersion"
  //   compile "com.google.code.gson:gson:$GsonVersion"
